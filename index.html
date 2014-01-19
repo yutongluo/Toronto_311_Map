@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <style type="text/css">
+  html { height: 100% }
+  body { height: 100%; margin: 0; padding: 0 }
+  #map-canvas { height: 100% }
+  </style>
+  <script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4uPhOH0Rb1gVg-LQXAqagjS4ptNV_OVc&sensor=true">
+  </script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script><body>
+  <script type="text/javascript">
+
+  function initialize() {
+
+    var mapOptions = {
+      center: new google.maps.LatLng(43.7, -79.4),
+      zoom: 12
+    };
+    var map = new google.maps.Map(document.getElementById("map-canvas"),
+      mapOptions);
+
+
+    $.ajax({
+      url:"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%20%3D%20%22https%3A%2F%2Fsecure.toronto.ca%2Fwebwizard%2Fws%2Frequests.json%3Fstart_date%3D2013-12-20T00%3A00%3A00Z%26end_date%3D2013-12-21T00%3A00%3A00Z%26jurisdiction_id%3Dtoronto.ca%22%20and%20service_requests.status%3D%22open%22&format=json&callback=",
+      context: document.body,
+      type: "GET",
+      dataType: "json",
+      success: function(data){
+        console.log(data);
+        var records = data.query.results.json.service_requests;
+        $.each(records, function(index, record){
+          console.log(record.lat);
+        });
+      },
+
+    });
+  }
+  google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+</head>
+<body>
+  <div id="map-canvas"/>
+</body>
+</html>
