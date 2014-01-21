@@ -10,8 +10,71 @@
   <script type="text/javascript"
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4uPhOH0Rb1gVg-LQXAqagjS4ptNV_OVc&sensor=true">
   </script>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script><body>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script><body>
   <script type="text/javascript">
+
+  //Global variables
+  var map;
+  var markers = [];
+
+
+  function plot(records, icon){
+    var location;
+    var marker;
+    var infowindow = new google.maps.InfoWindow({
+      content:''
+    });
+    
+    for(record in records){
+      location = new google.maps.LatLng(records[record].lat, records[record].long);
+      marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: records[record].service_name
+      });
+      bindInfoWindow(marker, map, infowindow, '<b>'+records[record].service_name + "</b><br>" + records[record].address);
+      markers.push(marker);
+    }
+  }
+
+ 
+  var bindInfoWindow = function(marker, map, infowindow, html) {
+      google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(html);
+          infowindow.open(map, marker);
+      });
+  } 
+  /* getData url, type, field
+
+      Given the URL and data type, returns the field in an array of objects
+
+      Type can be one of
+        * json
+        * xml
+        * jsonp
+
+      Field is a string. If no string specified, the entire JSON from URL is returned
+  */
+  function getData(url, data_type, field){
+    $.ajax({
+      url: url,
+      context: document.body,
+      type: "GET",
+      dataType: data_type,
+      success: function(data){
+        if(data != undefined){
+          console.log("Data successfully obtained from " + url);
+          var records = data.query.results.json[field];
+          plot(records,"icon");
+        }
+      },
+      error: function(){
+          console.log("Could not get data from " + url);
+      }
+    });
+  }
+
+
 
   function initialize() {
 
@@ -19,24 +82,14 @@
       center: new google.maps.LatLng(43.7, -79.4),
       zoom: 12
     };
-    var map = new google.maps.Map(document.getElementById("map-canvas"),
+
+    map = new google.maps.Map(document.getElementById("map-canvas"),
       mapOptions);
 
 
-    $.ajax({
-      url:"http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%20%3D%20%22https%3A%2F%2Fsecure.toronto.ca%2Fwebwizard%2Fws%2Frequests.json%3Fstart_date%3D2013-12-20T00%3A00%3A00Z%26end_date%3D2013-12-21T00%3A00%3A00Z%26jurisdiction_id%3Dtoronto.ca%22%20and%20service_requests.status%3D%22open%22&format=json&callback=",
-      context: document.body,
-      type: "GET",
-      dataType: "json",
-      success: function(data){
-        console.log(data);
-        var records = data.query.results.json.service_requests;
-        $.each(records, function(index, record){
-          console.log(record.lat);
-        });
-      },
+    //var records = getData("https://secure.toronto.ca/webwizard/ws/requests.json?start_date=2013-12-01T00:00:00Z&end_date=2013-12-31T00:00:00Z&jurisdiction_id=toronto.ca&status=open", "json", "service_requests");
 
-    });
+    var records = getData("http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20json%20where%20url%20%3D%20%22https%3A%2F%2Fsecure.toronto.ca%2Fwebwizard%2Fws%2Frequests.json%3Fstart_date%3D2013-12-20T00%3A00%3A00Z%26end_date%3D2013-12-21T00%3A00%3A00Z%26jurisdiction_id%3Dtoronto.ca%22%20and%20service_requests.status%3D%22open%22&format=json&callback=", "json", "service_requests", map, markers);
   }
   google.maps.event.addDomListener(window, 'load', initialize);
   </script>
