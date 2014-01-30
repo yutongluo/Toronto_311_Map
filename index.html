@@ -22,7 +22,7 @@
     var location;
     var marker;
     var infowindow = new google.maps.InfoWindow({
-      content:''
+      content:'', maxWidth: 300
     });
     
     for(record in records){
@@ -32,7 +32,7 @@
         map: map,
         title: records[record].service_name
       });
-      bindInfoWindow(marker, map, infowindow, '<b>'+records[record].service_name + "</b><br>" + records[record].address);
+      bindInfoWindow(marker, map, infowindow, '<b>'+records[record].service_name + "</b><br>" + records[record].address + '<br>'+ records[record].requested_datetime + '<br>' + records[record].media_url );
       markers.push(marker);
     }
   }
