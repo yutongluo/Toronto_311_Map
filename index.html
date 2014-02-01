@@ -17,22 +17,38 @@
   var map;
   var markers = [];
 
+  /* plot: records, icon
+      Records: array of objects with lat/long properties
+      icon: custom icon to plot
+      Type: array of fields
 
-  function plot(records, icon){
+  */
+  function plot(records, icon, type){
     var location;
     var marker;
+    var infowindowcontent = '';
     var infowindow = new google.maps.InfoWindow({
-      content:'', maxWidth: 300
+      content: infowindowcontent, maxWidth: 300
     });
-    
     for(record in records){
       location = new google.maps.LatLng(records[record].lat, records[record].long);
+
       marker = new google.maps.Marker({
         position: location,
         map: map,
         title: records[record].service_name
       });
-      bindInfoWindow(marker, map, infowindow, '<b>'+records[record].service_name + "</b><br>" + records[record].address + '<br>'+ records[record].requested_datetime + '<br>' + records[record].media_url );
+
+      infowindowcontent = '<b>'
+       + records[record].service_name + "</b><br>"
+       + records[record].address + '<br>'
+       + records[record].requested_datetime+ '<br>';
+
+      if(records[record].media_url!='null'){
+        infowindowcontent = infowindowcontent + '<img width="250px" src="' + records[record].media_url + '" />';
+        console.log(infowindowcontent);
+      }
+      bindInfoWindow(marker, map, infowindow, infowindowcontent);
       markers.push(marker);
     }
   }
@@ -44,7 +60,9 @@
           infowindow.open(map, marker);
       });
   } 
-  /* getData url, type, field
+
+
+  /* getData: url, type, field
 
       Given the URL and data type, returns the field in an array of objects
 
@@ -53,7 +71,9 @@
         * xml
         * jsonp
 
-      Field is a string. If no string specified, the entire JSON from URL is returned
+      Field is a string. If no string specified, the entire JSON from URL is returned.
+
+      TODO: Implement getData for different data_types and field access.
   */
   function getData(url, data_type, field){
     $.ajax({
