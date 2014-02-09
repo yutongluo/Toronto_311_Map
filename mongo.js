@@ -16,75 +16,104 @@ var mongoclient = new MongoClient(new Server("localhost", 27017), {native_parser
 
 var getData = require('./data.js');
 
-// Used to do a fresh full import of 311 data. If a collection exists the collection is removed.
-// Scope is 2 years ago
-// TODO: Make year changeable
-function create311(data){
-  console.log("Creating new 311 data.");
 
-  //Get date of 2 years ago
-  var now = new Date();
-  now.setFullYear(now.getFullYear() - 2);
-  var start_date = now.toJSON();
-  var url = "https://secure.toronto.ca/webwizard/ws/requests.json?start_date=" 
-  + start_date+ "&jurisdiction_id=toronto.ca"; 
+/* import_open_311: db (mongoclient.db), force (true/false)-> 0
 
-  mongoclient.open(function(err, mongoclient) {
+  if force is true, existing will be replaced.
+  Give a db instance (of open_311_calls), imports all 311 data. meant to be ran only once on bootstrap
+  Scope is set to 90 days, only open calls are queried
 
-    // Open db instance
-    var db = mongoclient.db("toronto_311_calls");
+  */
 
-    // Remove existing 311 calls. The createCollection here is
-    // just a trick to see if calls already exist. We will
-    // indiscriminately create calls after this.
+function import_open_311(db, force){
 
-    //TODO: fix this part. 
-    db.createCollection('calls', {strict:true}, function(err, collection) {
+  console.log("Import new 311 data.");
 
-      if(err){
-        console.log("311 calls collection exists. Removing.")
-        db.collection('calls', function(err, collection){
-          collection.remove({}, function(err, removed){
+  var url = "https://secure.toronto.ca/webwizard/ws/requests.json?status=open&jurisdiction_id=toronto.ca"; 
+
+  db.createCollection('calls_tmp', function(err, collection) {
+
+    if(err){
+      console.log(err);
+      return 1;
+    }
+    // Obtain data
+    getData(url, function(data){
+
+      assert.notEqual(data, null);
+
+      // Bulk insert (for 311 calls, service_requests contains all the data)
+      collection.insert(data.service_requests, {w:1}, function(err, result) {
+        assert.equal(null, err);
+        console.log("Updated toronto_311_calls/calls_tmp");
+
+        // Rename collection to calls. If old one exists then drop
+        collection.rename('open_calls', {dropTarget:force}, function(err){
+          console.log("Renamed calls_tmp to open_calls, old open_calls dropped if existed.");
+
+          //drop tmp collection
+          collection.drop();
+          var now = new Date();
+
+          // Update metadata
+          db.collection("metadata").insert([{date_updated: now}], function(err, result){
             assert.equal(null, err);
-            console.log("311 calls collection removed.")
+            console.log("METADATA: toronto_311_calls.metadata.date_updated = " + now);
+            return 0;
           });
         });
-      }
-    });
-
-    db.createCollection('calls', function(err, collection) {
-      getData(url, function(data){
-        collection.insert(data, function(err, result) {
-          assert.equal(null, err);
-          console.log("Updated toronto_311_calls/call");
-        });
       });
     });
-  })
+  });
 }
 
-create311(null);
-/*
-mongoclient.open(function(err, mongoclient) {
+/* force_import_open_311:  
 
-    // Get the first db and do an update document on it
-    var db = mongoclient.db("integration_tests");
-    db.collection('mongoclient_test').update({a:1}, {b:1}, {upsert:true}, function(err, result) {
-      assert.equal(null, err);
-      assert.equal(1, result);
-      console.log("Updated mongoclient_test");
+  
+  Give a db instance (of open_311_calls), imports all 311 data. meant to be ran only once on bootstrap
+  If all_calls collection already exists, replace old calls.
+  Scope is set to 90 days, only open calls are queried
 
-      // Get another db and do an update document on it
-      var db2 = mongoclient.db("integration_tests2");
-      db2.collection('mongoclient_test').update({a:1}, {b:1}, {upsert:true}, function(err, result) {
-        assert.equal(null, err);
-        assert.equal(1, result);
-        console.log("Updated mongoclient_test2");ubun
+  */
 
-        // Close the connection
-        mongoclient.close();
-      });
+function force_import_open_311(db){
+  mongoclient.open(function(err, mongoclient) {
+    var db = mongoclient.db("toronto_311_calls" , true);
+    import_open_311(db);
+  });
+}
+
+function update_open_311(db){
+
+  console.log("Updating new 311 data.");
+  var url = "https://secure.toronto.ca/webwizard/ws/requests.json?status=open&jurisdiction_id=toronto.ca"; 
+  
+  // Open db instance
+  mongoclient.open(function(err, mongoclient) {
+    var db = mongoclient.db("toronto_311_calls");
+
+    db.collectionNames("open_calls", function(err, items){
+      if(items.length == 0){
+        console.log("No open_calls collection found.")
+        import_open_311(db);
+      }
+      /*
+      else{
+        console.log("Updating existing open_calls.")
+        var collection = db.collection('open_calls');
+        getData(url, function(data){
+
+        });
+      }*/
+
     });
-  })
+  });
 
-*/
+}
+
+function main(){
+
+  update_open_311();
+}
+
+main();
