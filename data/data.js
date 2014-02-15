@@ -15,7 +15,6 @@ function getData(url, cb){
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", url, true);
 	xhr.onload = function(err) {
-		var extractTime = (Date.now() - startTime) / 1000;
 		logger.profile("311 Extract JSON Data");
 		var buffer = xhr.responseText;
 		var json = JSON.parse(buffer);
