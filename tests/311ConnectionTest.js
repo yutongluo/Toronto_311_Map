@@ -10,6 +10,7 @@ xhr.onload = function(err) {
 	var buffer = xhr.responseText;
 	var json = JSON.parse(buffer);
     assert.notEqual(json, null);
+
 }
 xhr.onerror = function(err) {
 	return err;
