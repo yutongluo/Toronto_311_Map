@@ -1,4 +1,4 @@
-Toronto Surveillance
+Toronto Surveillance [![Build Status](https://travis-ci.org/yluo1993/Toronto_surveillance.png?branch=master)](https://travis-ci.org/yluo1993/Toronto_surveillance)
 ====================
 
 ## Description
