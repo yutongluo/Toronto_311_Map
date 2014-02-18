@@ -18,11 +18,12 @@ function getData(url, cb){
 		logger.profile("311 Extract JSON Data");
 		var buffer = xhr.responseText;
 		var json = JSON.parse(buffer);
+		logger.info("data");
 		cb(json);
 	}
 	xhr.onerror = function(err) {
 		logger.error("ERROR: FAILED TO EXTRACT DATA FROM " + url);
-		logger.profile("311 Data Extract");
+		logger.profile("311 Extract JSON Data");
 		return err;
 	}
 	xhr.onreadystatechange = function(){

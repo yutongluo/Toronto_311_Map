@@ -9,7 +9,7 @@ var logger = new (winston.Logger)({
     new (winston.transports.Console)({ json: false, timestamp: true }),
     new winston.transports.File({ filename: __dirname + '/../logs/exceptions.log', json: false, maxsize:50000, maxFiles:10 })
   ],
-  exitOnError: true
+  exitOnError: false
 });
 
 module.exports = logger;
