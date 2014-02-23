@@ -8,9 +8,10 @@
     "express": "~3.4.8",
     "ejs": "*",
     "stylus": "*",
-    "forever": "~0.10.11"
+    "forever": "~0.10.11",
+    "mocha": "~1.17.1"
   },
   "scripts": {
-    "test": "node tests/311ConnectionTest.js"
+    "test": "node test/311ConnectionTest.js"
   }
 }
