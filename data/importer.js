@@ -16,6 +16,8 @@ var mongoclient = new MongoClient(new Server("localhost", 27017), {native_parser
 var logger = require('../bin/logger.js');
 var getData = require('./data.js');
 
+//Socket.io
+var socket = require('../app.js');
 
 /* import_open_311: db (mongoclient.db), force (true/false)-> 0
 
@@ -57,6 +59,7 @@ function import_open_311(db, force, callback){
           db.collection("metadata").insert([{date_updated: now}], function(err, result){
             assert.equal(null, err);
             logger.info("METADATA: toronto_311_calls.metadata.date_updated = " + now);
+            socket.sockets.emit('311 update', data.service_requests);
             callback();
             return 0;
           });

@@ -10,7 +10,14 @@
 	<script type="text/javascript"
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4uPhOH0Rb1gVg-LQXAqagjS4ptNV_OVc&sensor=true">
 	</script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script><body>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var socket = io.connect('http://localhost');
+		socket.on('311 update', function(data){
+			console.log(data);
+		});
+	</script>
 	<script type="text/javascript">
 
 		//Global variables

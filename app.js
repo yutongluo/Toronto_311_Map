@@ -42,3 +42,5 @@ app.get('/data', routes.data);
 
 // socket.io
 var io = require("socket.io").listen(server)
+
+exports.sockets=io.sockets;
