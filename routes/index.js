@@ -16,7 +16,7 @@ exports.data = function(req, res) {
 	MongoClient.connect("mongodb://localhost:27017/toronto_311_calls", {native_parser:true}, function(err, db) {
 		assert.equal(null, err);
 
-		db.collection('open_calls').find({}, {}, function(err, cursor) {
+		db.collection('open_calls').find({"service_code": "CSROWR-12"}, {}, function(err, cursor) {
 			assert.equal(null, err);
 			assert.notEqual(null, cursor);
 			cursor.toArray(function(err, docs){
