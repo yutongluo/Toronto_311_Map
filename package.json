@@ -13,6 +13,6 @@
     "socket.io": "~0.9.16"
   },
   "scripts": {
-    "test": "node test/311ConnectionTest.js"
+    "test": "make test"
   }
 }
