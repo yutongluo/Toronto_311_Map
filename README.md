@@ -1,4 +1,4 @@
-Toronto 311 Map [![Build Status](https://travis-ci.org/yluo1993/Toronto_311_Map.png?branch=master)](https://travis-ci.org/yluo1993/Toronto_311_Map)
+Toronto 311 Map [![Build Status](https://travis-ci.org/yutongluo/Toronto_311_Map.png?branch=master)](https://travis-ci.org/yluo1993/Toronto_311_Map)
 ====================
 
 ## Description
